@@ -1,0 +1,88 @@
+
+1) Qual o objetivo do comando cache em Spark?
+
+R: Amazenar os dados do RDD em memória, obtendo ganhos bem  maiores de performance pois quando os dados  forem reutilizados, o acesso será muito 
+mais rápido pois já estarão em cache. Recomendado utiliza com cautela, carregando dados menores, pois há limitação de recursos de memória. 
+Carregar os dados já tratados, ao invés de trazer os dados para serem agrupados no Spark.
+
+Exemplo: meuRDD.cache()
+
+
+2) O mesmo código implementado em Spark é normalmente mais rápido que a implementação equivalente em MapReduce. Por quê?
+
+R.: Porque o Spark leva o conceito do MapReduce ao próximo nível, conseguindo utilizar os recursos de memória e do cluster fazendo operações distribuidas.
+Já o MapReduce realiza suas operações em disco, degradando muito sua performance.
+
+Vantagens do uso do Spark:
+• API de alto nível:
+  desenvolvimento mais rápido, mais fácil
+• Latência baixa:
+  processamento próximo de tempo real
+• Armazenamento in-memory:
+  até 100x de melhoria de performance
+
+
+3)  Qual é a função do SparkContext?
+
+R: O SparkContext configura serviços internos e estabele conexão  com o ambiente do Spark.
+   Uma vez criado, você criar RDD, executar jobs, cancelar jobs, etc.
+
+   Utilizando o SparkContext.textFile será atribuído a um RDD (com o nome 'nome_qualquer' o arquivo (/home/training/arq_spark.log), por exemplo. 
+   Cada linha do arquivo será um registro separado no RDD
+
+   
+4) Explique com suas palavras o que é Resilient Distributed Datasets (RDD).
+
+R.: O significado de RDD é Resilient Distributed Dataset. 
+Resilient: Se o dados em memória são perdidos, eles podem ser recriados.
+Distributed: É armazenado em memória através do cluster. 
+Dataset: Os dados podem vir de um arquivo ou pode ser criado por meio de um programa.
+RDDs são a unidade fundamental do Spark. É uma coleção de objetos distribuidos e são imutáveis.
+Há 2 tipos de operações em RDD: 
+
+1 - Transformação:
+Operações que retornam um novo RDD, utilizando Lazy Evalution (Spark não irá executar até haver uma ação).
+exemplo de função: map, filter, distinct, union, combineByKey(), groupByKey(), join, etc.
+
+2 - Ação:
+
+Uma ação que retorna um valor (resultado) para o driver ou escreve no storage. 
+A ação mais comum utiliza reduce que realiza operações envolvendo dois elementos do mesmo tipo e retorna um novo elemento do mesmo tipo.
+Exemplos: Collect(), count(), top(num), reduce(func)
+
+
+5) GroupByKey é menos eficiente que reduceByKey em grandes dataset. Por quê?
+
+
+
+R: Sim,  o groupByKey e o reduceByKey são utilizados para juntar datasets porem o groupByKey pode ter alguns problemas quando os dados são 
+processados em disco e enviados para serem transformados, no  reduceByKey são combinados atraves de partições e combina todos os valores em outros valores exatamente com o mesmo tipo.
+
+
+6) Explique o que o código Scala abaixo faz.
+
+val textFile = sc.textFile("hdfs://...")
+	val counts = textFile.flatMap(line => line.split(" "))
+	.map(word=>(word,1))
+	.reduceByKey(_+_)
+counts.saveAsTextFile("hdfs://...")
+
+
+val textFile = sc.textFile("hdfs://...")
+-> Carrega os dados e cria o RDD "textFile"
+
+	val counts = textFile.flatMap(line => line.split(" "))
+		.map(word=>(word,1))
+		.reduceByKey(_+_)
+-> Separa as palavras e conta a quantidade de cada palavra, agrupando-as com suas respectivas quantidade no final
+-> flatMap + split = Faz o split das linha em palavras, 
+   map = cria a tupla (word,1). Função de "transformação"
+   reduceByKey = sumariza a quantidade das palavras agrupando as quantidade em cada uma. Executa a função de "ação" no RDD
+   
+counts.saveAsTextFile("hdfs://...")
+-> Salva o resultado em um arquivo  no HDFS. Função de "ação"
+
+
+
+
+
